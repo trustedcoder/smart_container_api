@@ -81,11 +81,11 @@ class ContainerMethod:
         found_item = Containers.query.filter(Containers.id == container_id).first()
         if found_item:
             if found_item.is_countable:
-                return found_item.current_weight+' kg'
+                return found_item.current_weight
             else:
-                return found_item.current_level + ' cm'
+                return found_item.current_level
         else:
-            return '0'
+            return 0
 
     @staticmethod
     def get_item_percent_remaining(container_id):
@@ -93,12 +93,12 @@ class ContainerMethod:
         if found_item:
             if found_item.is_countable:
                 percent = (found_item.current_weight/found_item.total_weight)*100
-                return percent+' %'
+                return percent
             else:
                 percent = (found_item.current_level / found_item.total_level) * 100
-                return percent+' %'
+                return percent
         else:
-            return '0'
+            return 0
 
     @staticmethod
     def get_item_quantity(container_id):
@@ -117,8 +117,8 @@ class ContainerMethod:
         found_item = Containers.query.filter(Containers.id == container_id).first()
         if found_item:
             if found_item.is_countable:
-                return found_item.total_weight+' kg'
+                return found_item.total_weight
             else:
-                return found_item.total_level+' cm'
+                return found_item.total_level
         else:
-            return '0'
+            return 0

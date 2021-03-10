@@ -372,3 +372,48 @@ class ContainerBusiness:
                 'message': 'Blocked.'
             }
             return response_object
+
+    @staticmethod
+    def check_for_one(auth_token, data):
+        if auth_token:
+            resp = User.decode_auth_token(auth_token)
+            if resp['status'] == 1:
+                found_containers = Containers.query.filter(Containers.public_id == data['container_id']).first()
+                if found_containers:
+                    if found_containers.is_countable:
+                        if float(found_containers.one_item_weight) <= 0:
+                            response_object = {
+                                'status': 1,
+                                'message': 'You can now add all the other items'
+                            }
+                            return response_object
+                        else:
+                            response_object = {
+                                'status': 1,
+                                'message': 'Please add one of the item.'
+                            }
+                            return response_object
+                    else:
+                        response_object = {
+                            'status': 1,
+                            'message': 'You can fill the container'
+                        }
+                        return response_object
+                else:
+                    response_object = {
+                        'status': 0,
+                        'message': 'No container found'
+                    }
+                    return response_object
+            else:
+                response_object = {
+                    'status': 0,
+                    'message': 'An error occurred. Try Again.'
+                }
+                return response_object
+        else:
+            response_object = {
+                'status': 0,
+                'message': 'Blocked.'
+            }
+            return response_object

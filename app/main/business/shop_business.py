@@ -10,7 +10,7 @@ from app.main import db
 
 class ShopBusiness:
     @staticmethod
-    def get_shopping_list(auth_token,data):
+    def get_shopping_list(auth_token):
         if auth_token:
             resp = User.decode_auth_token(auth_token)
             if resp['status'] == 1:
@@ -37,6 +37,48 @@ class ShopBusiness:
                         'status': 0,
                         'data': [],
                         'message': 'No shopping lists found'
+                    }
+                    return response_object
+            else:
+                response_object = {
+                    'status': 0,
+                    'message': 'An error occurred. Try Again.'
+                }
+                return response_object
+        else:
+            response_object = {
+                'status': 0,
+                'message': 'Blocked.'
+            }
+            return response_object
+
+    @staticmethod
+    def set_bought(auth_token, data):
+        if auth_token:
+            resp = User.decode_auth_token(auth_token)
+            if resp['status'] == 1:
+                shopping = Shopping.query.join(Containers, Containers.id == Shopping.container_id).filter(
+                    Containers.user_id == resp['user_id'], Shopping.container_id == data['container_id']).all()
+                if shopping:
+                    shopping.is_bought = True
+                    try:
+                        db.session.commit()
+                        response_object = {
+                            'status': 1,
+                            'message': 'Changes saved'
+                        }
+                        return response_object
+                    except Exception as e:
+                        db.session.rollback()
+                        response_object = {
+                            'status': 0,
+                            'message': str(e)
+                        }
+                        return response_object
+                else:
+                    response_object = {
+                        'status': 0,
+                        'message': 'Item not found in shopping list.'
                     }
                     return response_object
             else:
