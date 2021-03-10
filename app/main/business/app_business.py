@@ -1,4 +1,5 @@
 from app.main.helper.user_method import UserMethod
+from ..helper.notify_methods import NotifyMethod
 from app.main.model.users import User
 from app.main import db
 
@@ -19,7 +20,7 @@ class AppBusiness:
                         raise
                     response_object = {
                         'status': 1,
-                        'total_notify': '9',
+                        'total_notify': NotifyMethod.get_notify_total(resp['user_id']),
                         'fullname': UserMethod.get_fullname(resp['user_id']),
                         'email': UserMethod.get_email(resp['user_id']),
                         'message': 'Token updated successfully.'

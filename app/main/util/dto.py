@@ -59,3 +59,7 @@ class ContainerDto:
     reset_password = api.model('reset_password', {
         'email': fields.String(required=True, description='Email address'),
     })
+
+
+class NotifyDto:
+    api = Namespace('notification', description='Notification related operations')

@@ -3,6 +3,8 @@ from ..model.containers import Containers
 from ..model.readings import Readings
 from ..model.users import User
 from ..helper.user_method import UserMethod
+from ..helper.shop_methods import ShopMethod
+from ..helper.container_methods import ContainerMethod
 from app.main import db
 from definitions import ROOT_DIR
 import os,datetime
@@ -177,6 +179,11 @@ class ContainerBusiness:
         if found_container:
             found_container.current_weight = data['weight']
             found_container.current_level = data['level']
+
+            # update weight of one item (to be used to get total quantity of item)
+            if found_container.is_countable:
+                if int(found_container.one_item_weight) < 0:
+                    found_container.one_item_weight = data['weight']
             try:
                 db.session.commit()
 
@@ -187,6 +194,8 @@ class ContainerBusiness:
                         level = data['level']
                     )
                     UserMethod.save_changes(new_data)
+                # add or remove from shopping list
+                ShopMethod.add_to_shop(found_container.id)
                 response_object = {
                     'status': 1,
                     'message': 'Details saved'
@@ -260,10 +269,10 @@ class ContainerBusiness:
                     for container in found_containers:
                         list_container.append({
                             'name_item': container.name_item,
-                            'remaining': container.current_weight,
+                            'remaining': ContainerMethod.get_item_weight_level_remaining(container.id),
                             'name_container': container.name_container,
-                            'image': '',
-                            'percentage': '10%',
+                            'image': container.image_item,
+                            'percentage': ContainerMethod.get_item_percent_remaining(container.id),
                             'public_id': container.public_id
                         })
                     response_object = {
@@ -333,14 +342,14 @@ class ContainerBusiness:
                     response_object = {
                         'status': 1,
                         'name_item': found_containers.name_item,
-                        'remaining': found_containers.current_weight,
-                        'capacity': found_containers.t,
-                        'state': '',
-                        'countable': '',
-                        'quantity': '',
+                        'remaining': ContainerMethod.get_item_weight_level_remaining(found_containers.id),
+                        'capacity': ContainerMethod.get_container_capacity(found_containers.id),
+                        'state': found_containers.state,
+                        'countable': found_containers.is_countable,
+                        'quantity': ContainerMethod.get_item_quantity(found_containers.id),
                         'name_container': found_containers.name_container,
-                        'image': '',
-                        'percentage': '10%',
+                        'image': found_containers.image_item,
+                        'percentage': ContainerMethod.get_item_percent_remaining(found_containers.id),
                         'data': list_reading,
                         'message': 'container found'
                     }
@@ -363,4 +372,3 @@ class ContainerBusiness:
                 'message': 'Blocked.'
             }
             return response_object
-

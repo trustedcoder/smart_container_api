@@ -15,6 +15,7 @@ class Containers(db.Model):
     state = db.Column(db.Integer, nullable=True)
     is_edible = db.Column(db.Boolean, nullable=True)
     total_weight = db.Column(db.String(255), nullable=True)
+    one_item_weight = db.Column(db.String(255), nullable=True)
     total_level = db.Column(db.String(255), nullable=True)
     current_weight = db.Column(db.String(255), nullable=True, default = '0')
     current_level = db.Column(db.String(255), nullable=True, default = '0')

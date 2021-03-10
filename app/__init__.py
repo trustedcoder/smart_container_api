@@ -4,6 +4,7 @@ from .main.endpoint.auth_endpoints import api as auth_ns
 from .main.endpoint.app_endpoint import api as app_ns
 from .main.endpoint.user_endpoint import api as user_ns
 from .main.endpoint.container_endpoint import api as container_ns
+from .main.endpoint.notify_endpoint import api as notify_ns
 
 blueprint = Blueprint('api', __name__)
 
@@ -17,3 +18,4 @@ api.add_namespace(auth_ns)
 api.add_namespace(app_ns)
 api.add_namespace(user_ns)
 api.add_namespace(container_ns)
+api.add_namespace(notify_ns)
