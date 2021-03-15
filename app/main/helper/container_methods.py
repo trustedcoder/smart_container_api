@@ -98,11 +98,17 @@ class ContainerMethod:
         found_item = Containers.query.filter(Containers.id == container_id).first()
         if found_item:
             if found_item.is_countable:
-                percent = (found_item.current_weight/found_item.total_weight)*100
-                return percent
+                if found_item.total_weight is None:
+                    return 0
+                else:
+                    percent = (float(found_item.current_weight)/float(found_item.total_weight))*100
+                    return percent
             else:
-                percent = (found_item.current_level / found_item.total_level) * 100
-                return percent
+                if found_item.total_level is None:
+                    return 0
+                else:
+                    percent = (float(found_item.current_level) / float(found_item.total_level)) * 100
+                    return percent
         else:
             return 0
 

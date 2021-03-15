@@ -2,7 +2,7 @@ from flask_restplus import Resource
 from app.main.util.decorator import token_required
 from app.main.business.container_business import ContainerBusiness
 from flask import request
-from ..util.req_parser import detect_object,add_container_two,check_for_one
+from ..util.req_parser import detect_object,add_container_two,check_for_one,get_containers
 from ..util.dto import ContainerDto
 api = ContainerDto.api
 add_container_one = ContainerDto.add_container_one
@@ -83,7 +83,9 @@ class Calibrate(Resource):
 class GetContainer(Resource):
     @token_required
     @api.header('authorization', 'JWT TOKEN')
+    @api.expect(get_containers)
     def get(self):
         """get all container for a user"""
         auth_header = request.headers.get('authorization')
-        return ContainerBusiness.get_containers(auth_token=auth_header)
+        data = get_containers.parse_args(request)
+        return ContainerBusiness.get_containers(auth_token=auth_header,data=data)

@@ -5,6 +5,7 @@ from ..model.users import User
 from ..helper.user_method import UserMethod
 from ..helper.shop_methods import ShopMethod
 from ..helper.container_methods import ContainerMethod
+from flask import current_app as app
 from app.main import db
 from definitions import ROOT_DIR
 import os,datetime
@@ -228,11 +229,11 @@ class ContainerBusiness:
         if auth_token:
             resp = User.decode_auth_token(auth_token)
             if resp['status'] == 1:
-                found_container = Containers.query.filter(Containers.public_id == data['container_id'],
-                                                          Containers.user_id == resp['user_id']).first()
+                found_container = Containers.query.filter(Containers.public_id == data['container_id'],Containers.user_id == resp['user_id']).first()
                 if found_container:
                     found_container.is_calibrated = True
                     found_container.total_weight = found_container.current_weight
+                    found_container.total_level = found_container.current_level
                     try:
                         db.session.commit()
                         response_object = {
@@ -267,11 +268,11 @@ class ContainerBusiness:
             return response_object
 
     @staticmethod
-    def get_containers(auth_token):
+    def get_containers(auth_token,data):
         if auth_token:
             resp = User.decode_auth_token(auth_token)
             if resp['status'] == 1:
-                found_containers = Containers.query.filter(Containers.user_id == resp['user_id']).all()
+                found_containers = Containers.query.filter(Containers.user_id == resp['user_id']).limit(app.config["PAGINATION_COUNT"]).offset(data["start"]).all()
                 if found_containers:
                     list_container = []
                     for container in found_containers:
@@ -283,9 +284,19 @@ class ContainerBusiness:
                             'percentage': ContainerMethod.get_item_percent_remaining(container.id),
                             'public_id': container.public_id
                         })
+
+                    # pagination
+                    total_rows = Containers.query.filter(Containers.user_id == resp['user_id']).count()
+
+                    if total_rows <= ((data["start"] + app.config["PAGINATION_COUNT"])):
+                        is_last_page = True
+                    else:
+                        is_last_page = False
+
                     response_object = {
                         'status': 1,
                         'data': list_container,
+                        "is_last_page": is_last_page,
                         'message': 'container found'
                     }
                     return response_object
