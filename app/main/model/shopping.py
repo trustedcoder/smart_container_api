@@ -13,7 +13,7 @@ class Shopping(db.Model):
     container_id = db.Column(db.Integer, db.ForeignKey(Containers.id), nullable=False)
     is_bought = db.Column(db.Boolean,nullable=False)
     date_created = db.Column(db.DateTime, nullable=False,default=datetime.datetime.now())
-    __table_args__ = (db.PrimaryKeyConstraint('container_id', 'user_id', name='_user_id_uc'),)
+    __table_args__ = (db.PrimaryKeyConstraint('container_id', name='_user_id_uc'),)
 
     def __init__(self,container_id,is_bought):
         self.container_id = container_id

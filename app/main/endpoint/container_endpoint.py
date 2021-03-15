@@ -2,7 +2,7 @@ from flask_restplus import Resource
 from app.main.util.decorator import token_required
 from app.main.business.container_business import ContainerBusiness
 from flask import request
-from ..util.req_parser import detect_object,add_container_two
+from ..util.req_parser import detect_object,add_container_two,check_for_one
 from ..util.dto import ContainerDto
 api = ContainerDto.api
 add_container_one = ContainerDto.add_container_one
@@ -15,7 +15,7 @@ class AddContainerOne(Resource):
     @token_required
     @api.header('authorization', 'JWT TOKEN')
     @api.expect(add_container_one)
-    def patch(self):
+    def post(self):
         """Add first container details"""
         auth_header = request.headers.get('authorization')
         data = request.json
@@ -39,11 +39,23 @@ class AddContainerTwo(Resource):
     @token_required
     @api.header('authorization', 'JWT TOKEN')
     @api.expect(add_container_two)
-    def patch(self):
+    def post(self):
         """Save item name and start adding item in the container"""
         auth_header = request.headers.get('authorization')
         data = add_container_two.parse_args(request)
         return ContainerBusiness.add_container_two(auth_token=auth_header,data=data)
+
+
+@api.route('/check_for_one')
+class CheckForOne(Resource):
+    @token_required
+    @api.header('authorization', 'JWT TOKEN')
+    @api.expect(check_for_one)
+    def get(self):
+        """A refresh of the current reading in UI"""
+        auth_header = request.headers.get('authorization')
+        data = check_for_one.parse_args(request)
+        return ContainerBusiness.check_for_one(auth_token=auth_header,data=data)
 
 
 @api.route('/update_weight_level')

@@ -1,4 +1,5 @@
 from app.main import db
+from app.main.helper.notify_methods import NotifyMethod
 from app.main.model.users import User
 from app.main.model.blacklist import BlacklistToken
 import random
@@ -120,3 +121,27 @@ class AuthMethod:
             return "https://res.cloudinary.com/howla/image/upload/v1603528008/profile_image/no_profile_lqscrk.png"
         else:
             return image
+
+    @staticmethod
+    def send_verify_email_pin(pin,email,name):
+        final_html = "<h3>Hello "+name+"</h3><p>Click on the link below to verify your Smartcontainer account.</p>"+"<p>https://api.smartcontainer.link"
+        data = {
+            "from": {"Email": "no-reply@smartcontainer.link", "Smartcontainer": "Verify Email Address"},
+            "to": [{"Email": str(email), "Name": name}],
+            "subject": "Verify Email Address",
+            "text": "",
+            "html": final_html,
+        }
+        NotifyMethod.mailjet_send_email(data)
+
+    @staticmethod
+    def send_forgot_password_pin(pin, email, name):
+        final_html = "<h3>Hello " + name + "</h3><p>Click on the link below to change your Smartcontainer password.</p>" + "<p>https://api.smartcontainer.link"
+        data = {
+            "from": {"Email": "no-reply@smartcontainer.link", "Smartcontainer": "Forgot password"},
+            "to": [{"Email": str(email), "Name": name}],
+            "subject": "Forgot password",
+            "text": "",
+            "html": final_html,
+        }
+        NotifyMethod.mailjet_send_email(data)

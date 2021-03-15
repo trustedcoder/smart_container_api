@@ -36,6 +36,11 @@ class UserDto:
         'email': fields.String(required=True, description='Email address'),
     })
 
+    update_profile = api.model('update_profile', {
+        'email': fields.String(required=True, description='Email address'),
+        'name': fields.String(required=True, description='Fullname'),
+    })
+
 
 class ContainerDto:
     api = Namespace('container', description='Container related operations')

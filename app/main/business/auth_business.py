@@ -23,7 +23,7 @@ class Auth:
                         auth_response = found_user.encode_auth_token(found_user.id)
                         if auth_response['status'] == 1:
                             is_profiled = True
-                            if found_user.email is None or found_user.fullname is None:
+                            if found_user.email is None or found_user.fullname is None or found_user.email == "":
                                 is_profiled = False
                             response_object = {
                                 'status': 1,
@@ -50,7 +50,7 @@ class Auth:
                     public_id = ('\n'.join(map(str, AuthMethod.random_number(1, 2, 1000000000000))))
                     user_email = me['email'] if 'email' in me else ""
                     response1 = UserMethod.is_email_exist(user_email)
-                    if response1['status'] == 1:
+                    if response1:
                         found_old_user = User.query.filter(User.email == user_email).first()
                         found_old_user.google_id = me['sub']
                         try:
@@ -130,6 +130,7 @@ class Auth:
 
     @staticmethod
     def facebook_sign_in(data):
+        print(data['access_token'])
         graph = GraphAPI(data['access_token'])
         me = graph.get_object(id='me', fields='email,name,id,picture.width(100).height(100)')
         if 'error' not in me:
@@ -140,7 +141,7 @@ class Auth:
                     auth_response = found_user.encode_auth_token(found_user.id)
                     if auth_response['status'] == 1:
                         is_profiled = True
-                        if found_user.email is None or found_user.fullname is None:
+                        if found_user.email is None or found_user.fullname is None or found_user.email == "":
                             is_profiled = False
                         response_object = {
                             'status': 1,
@@ -167,7 +168,7 @@ class Auth:
                 public_id = ('\n'.join(map(str, AuthMethod.random_number(1, 2, 1000000000000))))
                 user_email = me['email'] if 'email' in me else ""
                 response1 = UserMethod.is_email_exist(user_email)
-                if response1['status'] == 1:
+                if response1 == 1:
                     found_old_user = User.query.filter(User.email == user_email).first()
                     found_old_user.facebook_id = me['id']
                     try:

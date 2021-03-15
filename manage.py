@@ -18,10 +18,9 @@ def add_data():
     load_db_data()
 
 
-
 @manager.command
 def run():
-    app.run(host="127.0.0.1", port=7003,debug=True)
+    app.run(host="0.0.0.0", port=7003,debug=True)
 
 
 if __name__ == "__main__":

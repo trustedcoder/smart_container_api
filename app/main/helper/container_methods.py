@@ -81,9 +81,15 @@ class ContainerMethod:
         found_item = Containers.query.filter(Containers.id == container_id).first()
         if found_item:
             if found_item.is_countable:
-                return found_item.current_weight
+                if found_item.current_weight is None:
+                    return 0
+                else:
+                    return found_item.current_weight
             else:
-                return found_item.current_level
+                if found_item.current_level is None:
+                    return 0
+                else:
+                    return found_item.current_level
         else:
             return 0
 

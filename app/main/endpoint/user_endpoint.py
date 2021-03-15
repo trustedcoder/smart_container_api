@@ -3,11 +3,11 @@ from flask_restplus import Resource
 from app.main.util.decorator import token_required
 from app.main.business.user_business import UserBusiness
 from ..util.dto import UserDto
-from ..util.req_parser import update_profile
 
 api = UserDto.api
 verify_password_pin = UserDto.verify_password_pin
 reset_password = UserDto.reset_password
+update_profile = UserDto.update_profile
 
 
 @api.route('/reset_password')
@@ -27,6 +27,7 @@ class VerifyPasswordPin(Resource):
         data = request.json
         return UserBusiness.verify_password_pin(data=data)
 
+
 @api.route('/update_profile')
 class UpdateProfile(Resource):
     @token_required
@@ -35,7 +36,7 @@ class UpdateProfile(Resource):
     def put(self):
         """Capture user information"""
         auth_header = request.headers.get('authorization')
-        data = update_profile.parse_args(request)
+        data = request.json
         return UserBusiness.update_profile(auth_token=auth_header,data=data)
 
 

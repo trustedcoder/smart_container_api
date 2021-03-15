@@ -15,11 +15,11 @@ class UserBusiness:
                 user = User.query.filter(User.id == resp['user_id']).first()
                 user.name = data['name']
 
-                if (user.email is None) or (user.email == ""):
+                if user.email is None or user.email is "":
                     user.email = data['email']
                 try:
                     db.session.commit()
-                except:
+                except Exception as e:
                     db.session.rollback()
                     raise
                 response_object = {
@@ -27,7 +27,6 @@ class UserBusiness:
                     'message': 'Profile updated'
                 }
                 return response_object
-
             else:
                 response_object = {
                     'status': 0,

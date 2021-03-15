@@ -21,7 +21,7 @@ class ContainerBusiness:
                 found_container = Containers.query.filter(Containers.public_id == data['container_id']).first()
                 if found_container:
                     is_container_fresh = Containers\
-                        .query.filter(Containers.public_id == data['container_id'], Containers.user_id is None).first()
+                        .query.filter(Containers.public_id == data['container_id'], Containers.user_id == None).first()
                     if is_container_fresh:
                         if data['state'] == 'Liquid':
                             state = 1
@@ -103,10 +103,13 @@ class ContainerBusiness:
                         db.session.commit()
                     except Exception as e:
                         db.session.rollback()
-
+                    if len(label) > 0:
+                        name_b = label[0]
+                    else:
+                        name_b = ''
                     response_object = {
                         'status': 1,
-                        'name': label,
+                        'name': name_b,
                         'message': 'Object detected'
                     }
                     return response_object
@@ -137,7 +140,7 @@ class ContainerBusiness:
                 found_container = Containers.query.filter(Containers.public_id == data['container_id'],Containers.user_id == resp['user_id']).first()
                 if found_container:
                     found_container.is_countable = data['is_countable']
-                    found_container.name_item = data['d']
+                    found_container.name_item = data['name_item']
 
                     try:
                         db.session.commit()
@@ -182,20 +185,25 @@ class ContainerBusiness:
 
             # update weight of one item (to be used to get total quantity of item)
             if found_container.is_countable:
-                if int(found_container.one_item_weight) < 0:
+                if found_container.one_item_weight is None:
                     found_container.one_item_weight = data['weight']
+                if found_container.total_weight is not None:
+                    # add or remove from shopping list
+                    ShopMethod.add_to_shop(found_container.id)
+            else:
+                if found_container.total_level is not None:
+                    # add or remove from shopping list
+                    ShopMethod.add_to_shop(found_container.id)
             try:
                 db.session.commit()
 
                 if found_container.is_calibrated:
                     new_data = Readings(
                         container_id=found_container.id,
-                        weight = data['weight'],
-                        level = data['level']
+                        weight = str(data['weight']),
+                        level = str(data['level'])
                     )
                     UserMethod.save_changes(new_data)
-                # add or remove from shopping list
-                ShopMethod.add_to_shop(found_container.id)
                 response_object = {
                     'status': 1,
                     'message': 'Details saved'
@@ -381,21 +389,24 @@ class ContainerBusiness:
                 found_containers = Containers.query.filter(Containers.public_id == data['container_id']).first()
                 if found_containers:
                     if found_containers.is_countable:
-                        if float(found_containers.one_item_weight) <= 0:
+                        if found_containers.one_item_weight is not None:
                             response_object = {
                                 'status': 1,
+                                'current_reading': str(ContainerMethod.get_item_weight_level_remaining(found_containers.id))+' kg',
                                 'message': 'You can now add all the other items'
                             }
                             return response_object
                         else:
                             response_object = {
                                 'status': 1,
+                                'current_reading': str(ContainerMethod.get_item_weight_level_remaining(found_containers.id))+' kg',
                                 'message': 'Please add one of the item.'
                             }
                             return response_object
                     else:
                         response_object = {
                             'status': 1,
+                            'current_reading': str(ContainerMethod.get_item_weight_level_remaining(found_containers.id))+' cm',
                             'message': 'You can fill the container'
                         }
                         return response_object
