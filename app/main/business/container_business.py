@@ -276,11 +276,22 @@ class ContainerBusiness:
                 if found_containers:
                     list_container = []
                     for container in found_containers:
+                        if container.is_countable:
+                            unit = 'kg'
+                        else:
+                            unit = 'cm'
+
+                        if ContainerMethod.get_item_percent_remaining(container.id) >30:
+                            image_url = os.getenv("API_DOMAIN_URL")+'static/ic_container_green.png'
+                        elif ContainerMethod.get_item_percent_remaining(container.id) >= 10:
+                            image_url = os.getenv("API_DOMAIN_URL") + 'static/ic_container_orange.png'
+                        else:
+                            image_url = os.getenv("API_DOMAIN_URL") + 'static/ic_container_red.png'
                         list_container.append({
                             'name_item': container.name_item,
-                            'remaining': ContainerMethod.get_item_weight_level_remaining(container.id),
+                            'remaining': str(ContainerMethod.get_item_weight_level_remaining(container.id))+unit,
                             'name_container': container.name_container,
-                            'image': container.image_item,
+                            'image': image_url,
                             'percentage': ContainerMethod.get_item_percent_remaining(container.id),
                             'public_id': container.public_id
                         })
