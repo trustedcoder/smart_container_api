@@ -1,9 +1,11 @@
 from ..helper.auth_methods import AuthMethod
 from ..model.containers import Containers
 from ..model.readings import Readings
+from ..model.notification import Notification
 from ..model.users import User
 from ..helper.user_method import UserMethod
 from ..helper.shop_methods import ShopMethod
+from ..helper.notify_methods import NotifyMethod
 from ..helper.container_methods import ContainerMethod
 from flask import current_app as app
 from app.main import db
@@ -197,7 +199,6 @@ class ContainerBusiness:
                     ShopMethod.add_to_shop(found_container.id)
             try:
                 db.session.commit()
-
                 if found_container.is_calibrated:
                     new_data = Readings(
                         container_id=found_container.id,
@@ -205,6 +206,85 @@ class ContainerBusiness:
                         level = str(data['level'])
                     )
                     UserMethod.save_changes(new_data)
+
+                    # send push notification and email alerts
+                    is_send_notification = False
+                    title = ''
+                    message = ''
+                    image_id = 1
+                    if ContainerMethod.is_empty(found_container.id):
+                        is_send_notification = True
+                        title = 'Empty container'
+                        message = 'Your ' + found_container.name_item + ' is empty, please refill'
+                        image_id = 1
+                    if ContainerMethod.is_low(found_container.id):
+                        is_send_notification = True
+                        title = 'Low container'
+                        message = 'Your ' + found_container.name_item + ' is about to exhaust, please refill'
+                        image_id = 2
+                    if ContainerMethod.is_half(found_container.id):
+                        is_send_notification = True
+                        title = 'Reached half'
+                        message = 'Your ' + found_container.name_item + ' is have gone below half, Consider re'
+                        image_id = 3
+                    if is_send_notification:
+                        found_notification = Notification.query \
+                            .filter(Notification.user_id == found_container.user_id,
+                                    Notification.container_id == found_container.id) \
+                            .order_by(Notification.id.desc()).first()
+                        if found_notification:
+                            elapsed_time = datetime.datetime.now() - found_notification.date_created
+                            if elapsed_time.hour > 2:
+                                new_notify = Notification(
+                                    container_id=found_container.id,
+                                    user_id=found_container.user_id,
+                                    title=message,
+                                    image=image_id
+                                )
+                                AuthMethod.save_changes(new_notify)
+                                found_user = User.query.filter(User.id == found_container.user_id).first()
+                                if found_user:
+                                    push_data = {
+                                        'registration_ids': [found_user.fcm_token],
+                                        'title': title,
+                                        'message': message,
+                                        'image_id': image_id
+                                    }
+                                    email_data = {
+                                        'from': 'alert@smartcontainer.link',
+                                        'to': found_user.email,
+                                        'subject': title,
+                                        'text': message,
+                                        'html': '',
+                                    }
+                                    NotifyMethod.fcm_send_push(push_data)
+                                    NotifyMethod.mailjet_send_email(email_data)
+                        else:
+                            new_notify = Notification(
+                                container_id=found_container.id,
+                                user_id=found_container.user_id,
+                                title=title,
+                                image=image_id
+                            )
+                            AuthMethod.save_changes(new_notify)
+                            found_user = User.query.filter(User.id == found_container.user_id).first()
+                            if found_user:
+                                push_data = {
+                                    'registration_ids': [found_user.fcm_token],
+                                    'title': title,
+                                    'message': message,
+                                    'image_id': image_id
+                                }
+                                email_data = {
+                                    'from': 'alert@smartcontainer.link',
+                                    'to': found_user.email,
+                                    'subject': title,
+                                    'text': message,
+                                    'html': '',
+                                }
+                                NotifyMethod.fcm_send_push(push_data)
+                                NotifyMethod.mailjet_send_email(email_data)
+
                 response_object = {
                     'status': 1,
                     'message': 'Details saved'

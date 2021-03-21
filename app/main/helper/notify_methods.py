@@ -17,18 +17,17 @@ class NotifyMethod:
         )
         # registration_ids is list of fcm_tokens
         registration_ids = data["registration_ids"]
-        # message_title = data['title']
-        # message_body = data['message']
-        # data_message = {
-        #     "title": data['title'],
-        #     "message": data['message'],
-        #     "notify_id": data['notify_id']
-        # }
+
+        data_message = {
+            "title": data['title'],
+            "message": data['message'],
+            "image_id": data['image_id']
+        }
         push_service.notify_multiple_devices(
             registration_ids=registration_ids,
             message_title=data["title"],
             message_body=data["message"],
-            click_action="http://127.0.0.1:7002/",
+            data_message=data_message
         )
 
     @staticmethod

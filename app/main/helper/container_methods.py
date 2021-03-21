@@ -8,15 +8,21 @@ class ContainerMethod:
         found_container = Containers.query.filter(Containers.id == container_id).first()
         if found_container:
             if found_container.is_countable:
-                percent_remaining = (found_container.current_weight/found_container.total_weight)*100
-                if (percent_remaining <= app.config["CONTAINER_LOW_PERCENT"]) and (percent_remaining >2):
-                    return True
+                if found_container.total_weight is not None:
+                    percent_remaining = (float(found_container.current_weight)/float(found_container.total_weight))*100
+                    if (percent_remaining <= app.config["CONTAINER_LOW_PERCENT"]) and (percent_remaining >2):
+                        return True
+                    else:
+                        return False
                 else:
                     return False
             else:
-                percent_remaining = (found_container.current_level/found_container.total_level)*100
-                if (percent_remaining <= app.config["CONTAINER_LOW_PERCENT"]) and (percent_remaining >2):
-                    return True
+                if found_container.total_level is not None:
+                    percent_remaining = (float(found_container.current_level)/float(found_container.total_level))*100
+                    if (percent_remaining <= app.config["CONTAINER_LOW_PERCENT"]) and (percent_remaining >2):
+                        return True
+                    else:
+                        return False
                 else:
                     return False
         else:
@@ -27,15 +33,21 @@ class ContainerMethod:
         found_container = Containers.query.filter(Containers.id == container_id).first()
         if found_container:
             if found_container.is_countable:
-                percent_remaining = (found_container.current_weight / found_container.total_weight) * 100
-                if (percent_remaining <= app.config["CONTAINER_EMPTY_PERCENT"]) or (percent_remaining <= 2):
-                    return True
+                if found_container.total_weight is not None:
+                    percent_remaining = (float(found_container.current_weight) / float(found_container.total_weight)) * 100
+                    if (percent_remaining <= app.config["CONTAINER_EMPTY_PERCENT"]) or (percent_remaining <= 2):
+                        return True
+                    else:
+                        return False
                 else:
                     return False
             else:
-                percent_remaining = (found_container.current_level / found_container.total_level) * 100
-                if (percent_remaining <= app.config["CONTAINER_EMPTY_PERCENT"]) or (percent_remaining <= 2):
-                    return True
+                if found_container.total_level is not None:
+                    percent_remaining = (float(found_container.current_level) / float(found_container.total_level)) * 100
+                    if (percent_remaining <= app.config["CONTAINER_EMPTY_PERCENT"]) or (percent_remaining <= 2):
+                        return True
+                    else:
+                        return False
                 else:
                     return False
         else:
@@ -46,15 +58,21 @@ class ContainerMethod:
         found_container = Containers.query.filter(Containers.id == container_id).first()
         if found_container:
             if found_container.is_countable:
-                percent_remaining = (found_container.current_weight / found_container.total_weight) * 100
-                if (percent_remaining <= app.config["CONTAINER_HALF_PERCENT"]) and (percent_remaining <= 30):
-                    return True
+                if found_container.total_weight is not None:
+                    percent_remaining = (float(found_container.current_weight) / float(found_container.total_weight)) * 100
+                    if (percent_remaining <= app.config["CONTAINER_HALF_PERCENT"]) and (percent_remaining <= 30):
+                        return True
+                    else:
+                        return False
                 else:
                     return False
             else:
-                percent_remaining = (found_container.current_level / found_container.total_level) * 100
-                if (percent_remaining <= app.config["CONTAINER_HALF_PERCENT"]) and (percent_remaining <= 30):
-                    return True
+                if found_container.total_level is not None:
+                    percent_remaining = (float(found_container.current_level) / float(found_container.total_level)) * 100
+                    if (percent_remaining <= app.config["CONTAINER_HALF_PERCENT"]) and (percent_remaining <= 30):
+                        return True
+                    else:
+                        return False
                 else:
                     return False
         else:
