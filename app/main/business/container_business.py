@@ -209,23 +209,20 @@ class ContainerBusiness:
 
                     # send push notification and email alerts
                     is_send_notification = False
-                    title = ''
+                    title = 'Smart container'
                     message = ''
                     image_id = 1
                     if ContainerMethod.is_empty(found_container.id):
                         is_send_notification = True
-                        title = 'Empty container'
                         message = 'Your ' + found_container.name_item + ' is empty, please refill'
                         image_id = 1
                     if ContainerMethod.is_low(found_container.id):
                         is_send_notification = True
-                        title = 'Low container'
                         message = 'Your ' + found_container.name_item + ' is about to exhaust, please refill'
                         image_id = 2
                     if ContainerMethod.is_half(found_container.id):
                         is_send_notification = True
-                        title = 'Reached half'
-                        message = 'Your ' + found_container.name_item + ' is have gone below half, Consider re'
+                        message = 'Your ' + found_container.name_item + ' have gone below half, consider refilling'
                         image_id = 3
                     if is_send_notification:
                         found_notification = Notification.query \
@@ -234,7 +231,7 @@ class ContainerBusiness:
                             .order_by(Notification.id.desc()).first()
                         if found_notification:
                             elapsed_time = datetime.datetime.now() - found_notification.date_created
-                            if elapsed_time.hour > 2:
+                            if elapsed_time.total_seconds() > 3:
                                 new_notify = Notification(
                                     container_id=found_container.id,
                                     user_id=found_container.user_id,
@@ -369,10 +366,10 @@ class ContainerBusiness:
                             image_url = os.getenv("API_DOMAIN_URL") + 'static/ic_container_red.png'
                         list_container.append({
                             'name_item': container.name_item,
-                            'remaining': str(ContainerMethod.get_item_weight_level_remaining(container.id))+unit,
+                            'remaining': str("{:.2f}".format(ContainerMethod.get_item_weight_level_remaining(container.id)))+unit,
                             'name_container': container.name_container,
                             'image': image_url,
-                            'percentage': ContainerMethod.get_item_percent_remaining(container.id),
+                            'percentage': "{:.2f}".format(ContainerMethod.get_item_percent_remaining(container.id)),
                             'public_id': container.public_id
                         })
 

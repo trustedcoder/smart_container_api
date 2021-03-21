@@ -25,8 +25,7 @@ class ShopMethod:
         else:
             if found_shop:
                 try:
-                    found_shop = Shopping.query.filter(Shopping.container_id == container_id)
-                    db.session.delete(found_shop)
+                    Shopping.query.filter(Shopping.container_id == container_id).delete()
                     db.session.commit()
                 except Exception as e:
                     db.session.rollback()

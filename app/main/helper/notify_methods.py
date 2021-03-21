@@ -13,7 +13,7 @@ class NotifyMethod:
     @staticmethod
     def fcm_send_push(data):
         push_service = FCMNotification(
-            api_key="AAAAXRmWaZ0:APA91bEnfYwgeTOPULlFG0YwmDE9JIK-yZZuIZR6d-mviCtoXu_LrOReub0bh8QfU3MZ0oaI9gF7TPrcXbPg-t5fOz59G7OO2nezhJN1FRFrDpHunRbWG-SvmQcP7fvziHQx0L52gW9v"
+            api_key="AAAAV73IL1k:APA91bEdZQQAdJQEtIQ-6p-ZALuOyQEuONrGX7pulyosc-m2oOXJq5T4UYJ7-Y5A4tS06n4uHKSHsViYoRVV7E3hi4zgGe9IST6Dyrrz3wtb9evP-DZYCH_gLMyoHLpMsqg5DnGazvPk"
         )
         # registration_ids is list of fcm_tokens
         registration_ids = data["registration_ids"]
@@ -25,10 +25,9 @@ class NotifyMethod:
         }
         push_service.notify_multiple_devices(
             registration_ids=registration_ids,
-            message_title=data["title"],
-            message_body=data["message"],
-            data_message=data_message
+            data_message = data_message
         )
+        print(registration_ids)
 
     @staticmethod
     def mailjet_send_email(data):
