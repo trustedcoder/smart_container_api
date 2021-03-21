@@ -13,7 +13,7 @@ class NotifyBusiness:
         if auth_token:
             resp = User.decode_auth_token(auth_token)
             if resp['status'] == 1:
-                notification = Notification.query.filter(Notification.user_id == resp['user_id'])
+                notification = Notification.query.filter(Notification.user_id == resp['user_id']).order_by(Notification.date_created.desc())
                 notifications = notification.limit(app.config["PAGINATION_COUNT"]).offset(data["start"]).all()
                 now = datetime.datetime.now()
                 if notifications:
@@ -21,12 +21,19 @@ class NotifyBusiness:
                     for notification in notifications:
                         list_notification.append({
                             'container_id': notification.container_id,
-                            'image': notification.image,
+                            'image': int(notification.image),
                             'title': notification.title,
                             'date_ago': timeago.format(notification.date_created, now)
                         })
+                        notification_opened = Notification.query.filter(Notification.user_id == resp['user_id'], Notification.id == notification.id).first()
+                        notification_opened.is_opened = True
+                        try:
+                            db.session.commit()
+                        except Exception as e:
+                            print(e)
+                            pass
                     # pagination
-                    total_rows = notification.count()
+                    total_rows = Notification.query.filter(Notification.user_id == resp['user_id']).count()
 
                     if total_rows <= ((data["start"] + app.config["PAGINATION_COUNT"])):
                         is_last_page = True
@@ -41,7 +48,7 @@ class NotifyBusiness:
                     return response_object
                 else:
                     response_object = {
-                        'status': 0,
+                        'status': 1,
                         'data': [],
                         "is_last_page": True,
                         'message': 'No notification found'

@@ -7,7 +7,7 @@ import os
 class NotifyMethod:
     @staticmethod
     def get_notify_total(user_id):
-        total_notify = Notification.query.filter(Notification.user_id == user_id).count()
+        total_notify = Notification.query.filter(Notification.user_id == user_id,Notification.is_opened == False).count()
         return total_notify
 
     @staticmethod

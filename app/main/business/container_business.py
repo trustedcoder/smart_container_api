@@ -390,7 +390,7 @@ class ContainerBusiness:
                     return response_object
                 else:
                     response_object = {
-                        'status': 0,
+                        'status': 1,
                         'data': [],
                         'message': 'No container found'
                     }
