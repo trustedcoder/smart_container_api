@@ -413,7 +413,7 @@ class ContainerBusiness:
         if auth_token:
             resp = User.decode_auth_token(auth_token)
             if resp['status'] == 1:
-                found_containers = Containers.query.filter(Containers.public_id == data['container_id']).first()
+                found_containers = Containers.query.filter(Containers.id == data['container_id']).first()
                 if found_containers:
                     reading = Readings.query.filter(Readings.container_id == found_containers.id)
 
@@ -433,7 +433,7 @@ class ContainerBusiness:
                         list_data = {
                             'weight': read.weight,
                             'level': read.level,
-                            'date_created': read.date_created
+                            'date_created': str(read.date_created)
                         }
                         # check if its the last reading for that day
                         for check_read in readings:
@@ -445,18 +445,27 @@ class ContainerBusiness:
 
                         if is_add:
                             list_reading.append(list_data)
-
+                    if found_containers.is_countable:
+                        unit = 'kg'
+                    else:
+                        unit = 'cm'
+                    if found_containers.state ==  app.config["STATE_SOLID"]:
+                        state = 'Solid'
+                    elif found_containers.state == app.config["STATE_LIQUID"]:
+                        state = 'Liquid'
+                    else:
+                        state = 'Gas'
                     response_object = {
                         'status': 1,
                         'name_item': found_containers.name_item,
-                        'remaining': ContainerMethod.get_item_weight_level_remaining(found_containers.id),
-                        'capacity': ContainerMethod.get_container_capacity(found_containers.id),
-                        'state': found_containers.state,
+                        'remaining': str(ContainerMethod.get_item_weight_level_remaining(found_containers.id))+unit,
+                        'capacity': str(ContainerMethod.get_container_capacity(found_containers.id))+unit,
+                        'state': state,
                         'countable': found_containers.is_countable,
                         'quantity': ContainerMethod.get_item_quantity(found_containers.id),
                         'name_container': found_containers.name_container,
                         'image': found_containers.image_item,
-                        'percentage': ContainerMethod.get_item_percent_remaining(found_containers.id),
+                        'percentage': str("{:.2f}".format(ContainerMethod.get_item_percent_remaining(found_containers.id))),
                         'data': list_reading,
                         'message': 'container found'
                     }

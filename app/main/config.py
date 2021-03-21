@@ -17,6 +17,9 @@ class Config:
     CONTAINER_EMPTY_PERCENT = 0
     CONTAINER_LOW_PERCENT = 30
     CONTAINER_HALF_PERCENT = 50
+    STATE_SOLID = 2
+    STATE_LIQUID = 1
+    STATE_GAS = 0
 
 
 class DevelopmentConfig(Config):
