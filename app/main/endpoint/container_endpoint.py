@@ -101,3 +101,15 @@ class ViewContainer(Resource):
         auth_header = request.headers.get('authorization')
         data = check_for_one.parse_args(request)
         return ContainerBusiness.view_container(auth_token=auth_header,data=data)
+
+
+@api.route('/delete')
+class DeleteContainer(Resource):
+    @token_required
+    @api.header('authorization', 'JWT TOKEN')
+    @api.expect(check_for_one)
+    def delete(self):
+        """calibrate container"""
+        auth_header = request.headers.get('authorization')
+        data = check_for_one.parse_args(request)
+        return ContainerBusiness.delete_container(auth_token=auth_header,data=data)

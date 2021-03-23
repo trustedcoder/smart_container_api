@@ -1,7 +1,7 @@
 import timeago
 import datetime
 from flask import current_app as app
-from app.main.helper.notify_methods import NotifyMethod
+from app.main.model.containers import Containers
 from ..model.notification import Notification
 from app.main.model.users import User
 from app.main import db
@@ -19,8 +19,9 @@ class NotifyBusiness:
                 if notifications:
                     list_notification = []
                     for notification in notifications:
+                        found_container = Containers.query.filter(Containers.id == notification.container_id).first()
                         list_notification.append({
-                            'container_id': notification.container_id,
+                            'container_id': found_container.public_id,
                             'image': int(notification.image),
                             'title': notification.title,
                             'date_ago': timeago.format(notification.date_created, now)

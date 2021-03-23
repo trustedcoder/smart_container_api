@@ -136,8 +136,11 @@ class ContainerMethod:
         found_item = Containers.query.filter(Containers.id == container_id).first()
         if found_item:
             if found_item.is_countable:
-                quantity = (float(found_item.total_weight) / float(found_item.current_weight))
-                return int(round(quantity))
+                if found_item.total_weight is None:
+                    return 0
+                else:
+                    quantity = (float(found_item.total_weight) / float(found_item.current_weight))
+                    return int(round(quantity))
             else:
                 return 0
         else:
@@ -148,8 +151,14 @@ class ContainerMethod:
         found_item = Containers.query.filter(Containers.id == container_id).first()
         if found_item:
             if found_item.is_countable:
-                return float(found_item.total_weight)
+                if found_item.total_weight is None:
+                    return 0
+                else:
+                    return float(found_item.total_weight)
             else:
-                return float(found_item.total_level)
+                if found_item.total_level is None:
+                    return 0
+                else:
+                    return float(found_item.total_level)
         else:
             return 0

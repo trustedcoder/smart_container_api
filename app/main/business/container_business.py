@@ -3,6 +3,9 @@ from ..model.containers import Containers
 from ..model.readings import Readings
 from ..model.notification import Notification
 from ..model.users import User
+from ..model.meal_ingredients import MealsIngredient
+from ..model.meals import Meals
+from ..model.shopping import Shopping
 from ..helper.user_method import UserMethod
 from ..helper.shop_methods import ShopMethod
 from ..helper.notify_methods import NotifyMethod
@@ -413,7 +416,7 @@ class ContainerBusiness:
         if auth_token:
             resp = User.decode_auth_token(auth_token)
             if resp['status'] == 1:
-                found_containers = Containers.query.filter(Containers.id == data['container_id']).first()
+                found_containers = Containers.query.filter(Containers.public_id == data['container_id']).first()
                 if found_containers:
                     reading = Readings.query.filter(Readings.container_id == found_containers.id)
 
@@ -430,10 +433,13 @@ class ContainerBusiness:
                     list_reading = []
                     for read in readings:
                         is_add = True
+                        if found_containers.is_countable:
+                            value = read.weight
+                        else:
+                            value = read.level
                         list_data = {
-                            'weight': read.weight,
-                            'level': read.level,
-                            'date_created': str(read.date_created)
+                            'value': float(value),
+                            'date_created': str(read.date_created.strftime("%d %b"))
                         }
                         # check if its the last reading for that day
                         for check_read in readings:
@@ -447,8 +453,10 @@ class ContainerBusiness:
                             list_reading.append(list_data)
                     if found_containers.is_countable:
                         unit = 'kg'
+                        yes = 'Yes'
                     else:
                         unit = 'cm'
+                        yes = 'No'
                     if found_containers.state ==  app.config["STATE_SOLID"]:
                         state = 'Solid'
                     elif found_containers.state == app.config["STATE_LIQUID"]:
@@ -461,10 +469,10 @@ class ContainerBusiness:
                         'remaining': str(ContainerMethod.get_item_weight_level_remaining(found_containers.id))+unit,
                         'capacity': str(ContainerMethod.get_container_capacity(found_containers.id))+unit,
                         'state': state,
-                        'countable': found_containers.is_countable,
+                        'countable': yes,
                         'quantity': ContainerMethod.get_item_quantity(found_containers.id),
                         'name_container': found_containers.name_container,
-                        'image': found_containers.image_item,
+                        'image': 'static/'+str(found_containers.image_item),
                         'percentage': str("{:.2f}".format(ContainerMethod.get_item_percent_remaining(found_containers.id))),
                         'data': list_reading,
                         'message': 'container found'
@@ -522,6 +530,87 @@ class ContainerBusiness:
                     response_object = {
                         'status': 0,
                         'message': 'No container found'
+                    }
+                    return response_object
+            else:
+                response_object = {
+                    'status': 0,
+                    'message': 'An error occurred. Try Again.'
+                }
+                return response_object
+        else:
+            response_object = {
+                'status': 0,
+                'message': 'Blocked.'
+            }
+            return response_object
+
+    @staticmethod
+    def delete_container(auth_token, data):
+        if auth_token:
+            resp = User.decode_auth_token(auth_token)
+            if resp['status'] == 1:
+                found_container = Containers.query.filter(Containers.public_id == data['container_id'], Containers.user_id == resp['user_id']).first()
+                if found_container:
+                    #update the container
+                    found_container.user_id = None
+                    found_container.state = None
+                    found_container.is_edible = None
+                    found_container.total_weight = None
+                    found_container.one_item_weight = None
+                    found_container.total_level = None
+                    found_container.current_weight = None
+                    found_container.current_level = None
+                    found_container.image_container = None
+                    found_container.image_item = None
+                    found_container.name_container = None
+                    found_container.name_item = None
+                    found_container.is_countable = None
+                    found_container.is_calibrated = None
+                    found_container.status = 0
+
+                    try:
+                        db.session.commit()
+                    except Exception as e:
+                        db.session.rollback()
+
+                    #  delete all meal ingredient
+                    MealsIngredient.query.filter(MealsIngredient.container_id == found_container.id).delete()
+                    try:
+                        db.session.commit()
+                    except Exception as e:
+                        db.session.rollback()
+
+                    #  delete all notification
+                    Notification.query.filter(Notification.container_id == found_container.id).delete()
+                    try:
+                        db.session.commit()
+                    except Exception as e:
+                        db.session.rollback()
+
+                    #  delete all readings
+                    Readings.query.filter(Readings.container_id == found_container.id).delete()
+                    try:
+                        db.session.commit()
+                    except Exception as e:
+                        db.session.rollback()
+
+                    #  delete all readings
+                    Shopping.query.filter(Shopping.container_id == found_container.id).delete()
+                    try:
+                        db.session.commit()
+                    except Exception as e:
+                        db.session.rollback()
+
+                    response_object = {
+                        'status': 1,
+                        'message': 'Container deleted'
+                    }
+                    return response_object
+                else:
+                    response_object = {
+                        'status': 0,
+                        'message': 'Container not found.'
                     }
                     return response_object
             else:
