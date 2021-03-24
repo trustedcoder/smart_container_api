@@ -1,6 +1,3 @@
-import timeago
-import datetime
-from flask import current_app as app
 from app.main.helper.container_methods import ContainerMethod
 from ..model.containers import Containers
 from app.main.model.users import User

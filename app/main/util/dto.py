@@ -68,3 +68,19 @@ class ContainerDto:
 
 class NotifyDto:
     api = Namespace('notification', description='Notification related operations')
+
+
+class ShoppingDto:
+    api = Namespace('shopping', description='Shopping related operations')
+    set_bought = api.model('set_bought', {
+        'container_id': fields.String(required=True, description='Container ID'),
+    })
+
+
+class MealDto:
+    api = Namespace('meal', description='Meal related operations')
+    remove_add_ingredient = api.model('remove_add_ingredient', {
+        'container_id': fields.String(required=True, description='Container ID'),
+        'meal_id': fields.String(required=True, description='Meal ID'),
+        'is_remove': fields.Boolean(required=True, description='Is remove or add'),
+    })
