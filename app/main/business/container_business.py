@@ -217,15 +217,15 @@ class ContainerBusiness:
                     image_id = 1
                     if ContainerMethod.is_empty(found_container.id):
                         is_send_notification = True
-                        message = 'Your ' + found_container.name_item + ' is empty, please refill'
+                        message = 'Your ' + str(found_container.name_item) + ' container is empty, please refill'
                         image_id = 1
                     if ContainerMethod.is_low(found_container.id):
                         is_send_notification = True
-                        message = 'Your ' + found_container.name_item + ' is about to exhaust, please refill'
+                        message = 'Your ' + str(found_container.name_item) + ' is about to exhaust, please refill'
                         image_id = 2
                     if ContainerMethod.is_half(found_container.id):
                         is_send_notification = True
-                        message = 'Your ' + found_container.name_item + ' have gone below half, consider refilling'
+                        message = 'Your ' + str(found_container.name_item) + ' container have gone below half, consider refilling'
                         image_id = 3
                     if is_send_notification:
                         found_notification = Notification.query \
@@ -263,7 +263,7 @@ class ContainerBusiness:
                             new_notify = Notification(
                                 container_id=found_container.id,
                                 user_id=found_container.user_id,
-                                title=title,
+                                title=message,
                                 image=image_id
                             )
                             AuthMethod.save_changes(new_notify)
@@ -362,11 +362,11 @@ class ContainerBusiness:
                             unit = 'cm'
 
                         if ContainerMethod.get_item_percent_remaining(container.id) >30:
-                            image_url = os.getenv("API_DOMAIN_URL")+'static/ic_container_green.png'
+                            image_url = 'static/ic_container_green.png'
                         elif ContainerMethod.get_item_percent_remaining(container.id) >= 10:
-                            image_url = os.getenv("API_DOMAIN_URL") + 'static/ic_container_orange.png'
+                            image_url = 'static/ic_container_orange.png'
                         else:
-                            image_url = os.getenv("API_DOMAIN_URL") + 'static/ic_container_red.png'
+                            image_url = 'static/ic_container_red.png'
                         list_container.append({
                             'name_item': container.name_item,
                             'remaining': str("{:.2f}".format(ContainerMethod.get_item_weight_level_remaining(container.id)))+unit,

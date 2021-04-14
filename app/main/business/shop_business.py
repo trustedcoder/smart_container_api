@@ -15,12 +15,17 @@ class ShopBusiness:
                 if shoppings:
                     list_shopping = []
                     for shopping in shoppings:
+                        container =  Containers.query.filter(Containers.id == shopping.container_id).first()
+                        if container.is_countable:
+                            unit = 'kg'
+                        else:
+                            unit = 'cm'
                         list_shopping.append({
                             'container_id': shopping.container_id,
                             'image': ContainerMethod.get_container_item_image(shopping.container_id),
                             'title': ContainerMethod.get_container_item_name(shopping.container_id),
-                            'weight_level_remaining': ContainerMethod.get_item_weight_level_remaining(shopping.container_id),
-                            'percent_remaining': ContainerMethod.get_item_percent_remaining(shopping.container_id),
+                            'weight_level_remaining': str(ContainerMethod.get_item_weight_level_remaining(shopping.container_id))+unit,
+                            'percent_remaining': "{:.2f}".format(ContainerMethod.get_item_percent_remaining(shopping.container_id)),
                             'is_bought': shopping.is_bought
                         })
                     response_object = {
@@ -31,7 +36,7 @@ class ShopBusiness:
                     return response_object
                 else:
                     response_object = {
-                        'status': 0,
+                        'status': 1,
                         'data': [],
                         'message': 'No shopping lists found'
                     }
@@ -55,9 +60,9 @@ class ShopBusiness:
             resp = User.decode_auth_token(auth_token)
             if resp['status'] == 1:
                 shopping = Shopping.query.join(Containers, Containers.id == Shopping.container_id).filter(
-                    Containers.user_id == resp['user_id'], Shopping.container_id == data['container_id']).all()
+                    Containers.user_id == resp['user_id'], Shopping.container_id == data['container_id']).first()
                 if shopping:
-                    shopping.is_bought = True
+                    shopping.is_bought = data['is_bought']
                     try:
                         db.session.commit()
                         response_object = {

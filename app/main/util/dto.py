@@ -74,6 +74,7 @@ class ShoppingDto:
     api = Namespace('shopping', description='Shopping related operations')
     set_bought = api.model('set_bought', {
         'container_id': fields.String(required=True, description='Container ID'),
+        'is_bought': fields.Boolean(required=True, description='Is bought'),
     })
 
 

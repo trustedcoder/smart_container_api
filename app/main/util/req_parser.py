@@ -20,7 +20,7 @@ add_container_two.add_argument('container_id',type=str,required=True,help='Conta
 
 new_meal_save = reqparse.RequestParser()
 new_meal_save.add_argument('image', type=FileStorage, location='files', required=False, help='file')
-new_meal_save.add_argument('ingredient', action='append', required=True, help='Ingredient')
+new_meal_save.add_argument('ingredient', type=str, required=True, help='Ingredient')
 new_meal_save.add_argument('name',type=str,required=True,help='Meal name')
 new_meal_save.add_argument('cook_time',type=str,required=True,help='Cook time')
 

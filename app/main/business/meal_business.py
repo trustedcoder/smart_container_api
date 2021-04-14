@@ -78,8 +78,10 @@ class MealBusiness:
                         db.session.commit()
                         find_meal = Meals.query.filter(Meals.user_id == resp['user_id'], Meals.name == data['name'], Meals.cook_time == data['cook_time'], Meals.image == name + '/' +real_name).first()
                         if find_meal:
-
-                            for ingredient in data['ingredient']:
+                            print(data['ingredient'])
+                            all_ingredients = data['ingredient'].split('*')
+                            print(all_ingredients)
+                            for ingredient in all_ingredients:
                                 ingredient = ingredient.split('|')
                                 print(ingredient)
                                 new_ingredient = MealsIngredient(
@@ -129,7 +131,7 @@ class MealBusiness:
                     meal_id = data['meal_id']
                 else:
                     meal_id = 0
-                ingredients = Containers.query.filter(Containers.is_edible == True).all()
+                ingredients = Containers.query.filter(Containers.is_edible == True, Containers.user_id == resp['user_id']).order_by(Containers.name_item).all()
                 if ingredients:
                     list_ingredient = []
                     for ingredient in ingredients:
@@ -137,12 +139,14 @@ class MealBusiness:
                             unit = 'kg'
                         else:
                             unit = 'cm'
+                        print('static/'+str(ingredient.image_item))
                         list_ingredient.append({
                             'meal_id': meal_id,
                             'container_id': ingredient.id,
                             'image': 'static/'+str(ingredient.image_item),
                             'unit': unit,
                             'name': ingredient.name_item,
+                            'quantity': MealMethod.get_ingredient_q(meal_id, ingredient.id),
                             'is_added': MealMethod.is_found_ingredient(meal_id, ingredient.id)
                         })
                     response_object = {
